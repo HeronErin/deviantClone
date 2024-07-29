@@ -80,7 +80,7 @@ def serialize(id, jso):
 				abs(id), 
 				abs(notNull(info.get("views", 0))), abs(notNull(info.get("favorites", 0))), abs(notNull(info.get("comments", 0))), abs(notNull(info.get("downloads", 0))),
 
-				abs(int(notNull(jso.get("width", 0)))), abs(int(notNull(jso.get("height", 0)))),
+				min(abs(int(notNull(jso.get("width", 0)))), 60000), min(abs(int(notNull(jso.get("height", 0)))), 60000),
 				abs(int(notNull(dateutil.parser.isoparse(jso.get("pubdate", "1980-01-16T10:00:05-08:00")).timestamp())))
 			)
 	byteData += _serializeString(jso.get("title", ""))
