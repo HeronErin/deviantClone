@@ -1,9 +1,9 @@
-import oembed, requests, gzip, time
+import oembed, requests, gzip, time, traceback
 
 
-server = "http://127.0.0.1:5000/"
-size = 1_0000
-threads = 25
+server = "http://10.128.0.5:5000"
+size = 10_000
+threads = 10
 
 threadList = []
 
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 				try:
 					r = ses.get(server + "/get_directive/" + str(size))
 					break
-				except Exception as e: print(e)
+				except Exception as e: traceback.print_exception(e)
 			start, end = r.json()
 			t = oembed.Getter(start, end)
 			t.start()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 				try: 
 					ses.post(server + "/submit/" + str(r[1]) + "/" + str(r[2]), data=gzip.compress(r[0].bakeResults()))
 					break
-				except Exception as e: print(e)
+				except Exception as e: traceback.print_exception(e)
 
 		if len(results):
 			diff = time.time() - runningFor

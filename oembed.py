@@ -3,6 +3,7 @@ import struct
 import dateutil.parser
 import datetime
 import gzip
+import traceback
 
 class Getter(threading.Thread):
 	def __init__(self, start, end):
@@ -25,7 +26,7 @@ class Getter(threading.Thread):
 						print(r)
 						time.sleep(1)
 				except Exception as e:
-					print(e)
+					traceback.print_exception(e)
 					time.sleep(1)
 		self.results = results
 		print("Completed range", self.startIndex, "-",  self.end)
@@ -34,7 +35,7 @@ class Getter(threading.Thread):
 		assert self.results is not None
 		bdata = b""
 		for i in range(self.startIndex, self.end):
-			if self.results[i].startswith("404 Not Found"):
+			if not i in self.results or self.results[i].startswith("404 Not Found"):
 				bdata += b"\x00"
 			else:
 				bdata += serialize(i, json.loads(self.results[i]))
@@ -131,5 +132,5 @@ def bulkDecode(byteData, offset = 0):
 	while offset < len(byteData):
 		idd, jso, offset = deserialize(byteData, offset)
 		results.append([idd, jso])
-	print(results)
+	return results
 
