@@ -11,7 +11,7 @@ By simply going to the following url, you can view most of the important metadat
 https://backend.deviantart.com/oembed?url=123456
 ``` 
 
-## Lega
+## Legal
 ```plaintext
 Copyright (c) 2024 HeronErin
 
