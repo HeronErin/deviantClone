@@ -5,16 +5,16 @@ import datetime
 import gzip
 
 class Getter(threading.Thread):
-	def __init__(self, start, lenn):
+	def __init__(self, start, end):
 		self.startIndex = start
-		self.len = lenn
+		self.end = end
 		threading.Thread.__init__(self)
 
 		self.results = None
 	def run(self):
 		results = {}
 		session = requests.session()
-		for i in range(self.startIndex, self.startIndex + self.len):
+		for i in range(self.startIndex, self.end):
 			while 1:
 				try:
 					r = session.get(f"https://backend.deviantart.com/oembed?url={i}", timeout=15)
@@ -28,12 +28,12 @@ class Getter(threading.Thread):
 					print(e)
 					time.sleep(1)
 		self.results = results
-		print("Completed range", self.startIndex, "-",  self.startIndex + self.len)
+		print("Completed range", self.startIndex, "-",  self.end)
 
 	def bakeResults(self):
 		assert self.results is not None
 		bdata = b""
-		for i in range(self.startIndex, self.startIndex + self.len):
+		for i in range(self.startIndex, self.end):
 			if self.results[i].startswith("404 Not Found"):
 				bdata += b"\x00"
 			else:
@@ -68,7 +68,8 @@ def _deserializeString(data, offset):
 def _serializeString(string):
 	return struct.pack("!H", len(string)) + string.encode("utf-8")
 
-
+def notNull(i):
+	return 0 if i is None else i
 def serialize(id, jso):
 	if jso.get("title") is None:
 		return b"\x00"
@@ -76,10 +77,10 @@ def serialize(id, jso):
 	byteData = b"\x01" + struct.pack(
 				'!I IIII HH Q',
 				id, 
-				info.get("views", 0), info.get("favorites", 0), info.get("comments", 0), info.get("downloads", 0),
+				notNull(info.get("views", 0)), notNull(info.get("favorites", 0)), notNull(info.get("comments", 0)), notNull(info.get("downloads", 0)),
 
-				int(jso.get("width", 0)), int(jso.get("height", 0)),
-				int(dateutil.parser.isoparse(jso.get("pubdate", "1900-01-16T10:00:05-08:00")).timestamp())
+				int(notNull(jso.get("width", 0))), int(notNull(jso.get("height", 0))),
+				int(notNull(dateutil.parser.isoparse(jso.get("pubdate", "1900-01-16T10:00:05-08:00")).timestamp()))
 			)
 	byteData += _serializeString(jso.get("title", ""))
 	byteData += _serializeString(jso.get("type", ""))
