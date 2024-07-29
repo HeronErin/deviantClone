@@ -26,7 +26,7 @@ class Getter(threading.Thread):
 						print(r)
 						time.sleep(1)
 				except Exception as e:
-					traceback.print_exception(e)
+					print(traceback.format_exc())
 					time.sleep(1)
 		self.results = results
 		print("Completed range", self.startIndex, "-",  self.end)

@@ -24,7 +24,7 @@ if __name__ == "__main__":
 				try:
 					r = ses.get(server + "/get_directive/" + str(size))
 					break
-				except Exception as e: traceback.print_exception(e)
+				except Exception as e: print(traceback.format_exc())
 			start, end = r.json()
 			t = oembed.Getter(start, end)
 			t.start()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 				try: 
 					ses.post(server + "/submit/" + str(r[1]) + "/" + str(r[2]), data=gzip.compress(r[0].bakeResults()))
 					break
-				except Exception as e: traceback.print_exception(e)
+				except Exception as e: print(traceback.format_exc())
 
 		if len(results):
 			diff = time.time() - runningFor

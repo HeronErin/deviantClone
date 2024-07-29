@@ -1,12 +1,13 @@
 import sys, os, gzip, oembed, json
-
 def join():
 	startToFile = {int(f.split("-")[0]):f for f in os.listdir("data") if f.endswith(".bin")}
-	print(startToFile)
+
 	for key in sorted(startToFile.keys()):
 		if not key in startToFile:
 			continue
 		name = startToFile[key]
+		if os.stat(os.path.join("data", name)) > 20*1024*1024:
+			continue
 		end = int(name.split("-")[1].split(".")[0])
 
 		while end in startToFile:
