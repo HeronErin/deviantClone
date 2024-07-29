@@ -67,6 +67,8 @@ def _deserializeString(data, offset):
     offset += length
     return string, offset
 def _serializeString(string):
+	if string is None:
+		string = "<NULL>"
 	return struct.pack("!H", len(string)) + string.encode("utf-8")
 
 def notNull(i):
