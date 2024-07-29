@@ -77,11 +77,11 @@ def serialize(id, jso):
 	info = jso.get("community", {}).get("statistics", {}).get("_attributes", {})
 	byteData = b"\x01" + struct.pack(
 				'!I IIII HH Q',
-				id, 
-				notNull(info.get("views", 0)), notNull(info.get("favorites", 0)), notNull(info.get("comments", 0)), notNull(info.get("downloads", 0)),
+				abs(id), 
+				abs(notNull(info.get("views", 0))), abs(notNull(info.get("favorites", 0))), abs(notNull(info.get("comments", 0))), abs(notNull(info.get("downloads", 0))),
 
-				int(notNull(jso.get("width", 0))), int(notNull(jso.get("height", 0))),
-				int(notNull(dateutil.parser.isoparse(jso.get("pubdate", "1900-01-16T10:00:05-08:00")).timestamp()))
+				abs(int(notNull(jso.get("width", 0)))), abs(int(notNull(jso.get("height", 0)))),
+				abs(int(notNull(dateutil.parser.isoparse(jso.get("pubdate", "1980-01-16T10:00:05-08:00")).timestamp())))
 			)
 	byteData += _serializeString(jso.get("title", ""))
 	byteData += _serializeString(jso.get("type", ""))
