@@ -1,6 +1,6 @@
 # Deviant Clone
 
-Abuse the DeviantArt `oembed` api to make a clone of the website in only about 6 gigabytes. DeviantArt counts it's id numbers up incrementally, and therefore you can theoretically clone the entire website. As of the time of writing, DeviantArt is at about 1.1 *billion* posts, and therefore speed is key.
+Abuse the DeviantArt `oembed` api to make a clone of the website in only about 6 gigabytes. DeviantArt counts it's id numbers up incrementally, and therefore you can theoretically clone the entire website. As of the time of writing, DeviantArt is at about 1.1 **billion** posts, and therefore speed is key.
 
 In order to download the entire website it requires many threads running on many machines with hyper efficant code, and that is what the goal of this repo is. This repo contains 2 main programs, the server, and the runner. The server manages what range of id numbers the the runner is fetching, then posts the gziped data back to the server. The resulting data is in a custom binary format, allowing for the average deviation post to be around 55 bytes once gziped. 
 
