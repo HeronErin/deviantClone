@@ -9,7 +9,7 @@ def join():
 		if os.stat(os.path.join("data", name)) > 20*1024*1024:
 			continue
 		end = int(name.split("-")[1].split(".")[0])
-
+		
 		while end in startToFile:
 			f = open(os.path.join("data", name), "rb")
 			p1 = gzip.decompress(f.read())

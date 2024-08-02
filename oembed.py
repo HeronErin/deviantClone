@@ -16,10 +16,22 @@ class Getter(threading.Thread):
 		results = {}
 		session = requests.session()
 		for i in range(self.startIndex, self.end):
+			jsoFail = 0
 			while 1:
 				try:
 					r = session.get(f"https://backend.deviantart.com/oembed?url={i}", timeout=15)
+					if r.status_code == 200:
+						try: 
+							if jsoFail > 25:
+								break
+							json.loads(r.text)
+							jsoFail += 1
+						except json.decoder.JSONDecodeError:
+							f = open("Not jsonable", "a")
+							f.write(r.text + "\n")
+							f.close()
 					if r.status_code == 200 or r.status_code == 404:
+
 						results[i] = r.text
 						break
 					else:

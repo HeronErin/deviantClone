@@ -1,9 +1,9 @@
 import oembed, requests, gzip, time, traceback
 
 
-server = "http://10.128.0.5:5000"
-size = 10_000
-threads = 10
+server = "http://34.31.231.163/"
+size = 20_000
+threads = 30
 
 threadList = []
 
