@@ -30,6 +30,7 @@ class Getter(threading.Thread):
 							f = open("Not jsonable", "a")
 							f.write(r.text + "\n")
 							f.close()
+							continue
 					if r.status_code == 200 or r.status_code == 404:
 
 						results[i] = r.text
