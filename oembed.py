@@ -24,9 +24,10 @@ class Getter(threading.Thread):
 						try: 
 							if jsoFail > 25:
 								break
+							
 							json.loads(r.text)
-							jsoFail += 1
 						except json.decoder.JSONDecodeError:
+							jsoFail += 1
 							f = open("Not jsonable", "a")
 							f.write(r.text + "\n")
 							f.close()
