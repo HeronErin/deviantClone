@@ -19,7 +19,7 @@ class Getter(threading.Thread):
 			jsoFail = 0
 			while 1:
 				try:
-					r = session.get(f"https://backend.deviantart.com/oembed?url={i}", timeout=15)
+					r = session.get(f"https://backend.deviantart.com/oembed?url=https://www.deviantart.com/deviation/{i}", timeout=15)
 					if r.status_code == 200:
 						try: 
 							if jsoFail > 25:
