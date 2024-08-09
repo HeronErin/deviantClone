@@ -25,7 +25,7 @@ class Getter(threading.Thread):
 						f"https://backend.deviantart.com/oembed?url=https://www.deviantart.com/deviation/{i}",
 						headers = {
 							"User-Agent": f"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/{ver} (KHTML, like Gecko) Chrome/127.0.0.0 Safari/{ver}",
-							'SEC-CH-UA': f'"Chrome";v="{random.randrange(100, 130)}", "Not)A;Brand";v="99"'
+							'SEC-CH-UA': f'"Chrome";v="{random.randrange(100, 130)}", "Not)A;Brand";v="99"',
 							'SEC-CH-UA-MOBILE': '?0',
 							'Sec-CH-UA-Platform': "Windows"
 							},
