@@ -4,6 +4,7 @@ import dateutil.parser
 import datetime
 import gzip
 import traceback
+import random
 
 class Getter(threading.Thread):
 	def __init__(self, start, end):
@@ -19,7 +20,16 @@ class Getter(threading.Thread):
 			jsoFail = 0
 			while 1:
 				try:
-					r = session.get(f"https://backend.deviantart.com/oembed?url=https://www.deviantart.com/deviation/{i}", timeout=15)
+					ver = f"{random.randrange(500, 540)}.{random.randrange(10, 40)}"
+					r = session.get(
+						f"https://backend.deviantart.com/oembed?url=https://www.deviantart.com/deviation/{i}",
+						headers = {
+							"User-Agent": f"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/{ver} (KHTML, like Gecko) Chrome/127.0.0.0 Safari/{ver}",
+							'SEC-CH-UA': '"Chromium";v="127", "Not)A;Brand";v="99"'
+							'SEC-CH-UA-MOBILE': '?0',
+							'Sec-CH-UA-Platform': "Windows"
+							},
+						timeout=15)
 					if r.status_code == 200:
 						try: 
 							if jsoFail > 25:
