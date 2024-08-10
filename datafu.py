@@ -87,7 +87,29 @@ def rename(path):
 		if id != -1:
 			os.rename(path, str(i + id) + "-" +str(i + id + len(res)) + ".bin" )
 			break
-	
+def jobs():
+	files = [(int(d.split("-")[0]), int(d.split("-")[1].split(".")[0]), d) for d in os.listdir("data") if d.endswith(".bin")]
+	files = list(sorted(files, key=lambda x: int(x[0])))
+	genJobs = []
+	for i, (start, end, fname) in enumerate(files):
+		if i == len(files) -1:
+			continue
+		xdiff = int(files[i+1][0]) - int(end)
+
+		if xdiff <= 0:
+			continue
+
+		start = int(end)
+		
+
+		while xdiff > 0:
+			xstart = start
+			diff = min(20_000, xdiff)
+			xdiff -= diff
+			
+			start += diff
+			genJobs.append([xstart, start])
+	print(json.dumps(genJobs, indent = 4))
 def fill():
 	maxThreads = 25
 	threadList = []
@@ -141,8 +163,8 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		print("Please use one of the valid arguments: join")
 		exit(1)
-	elif sys.argv[1] == "fill":
-		fill()
+	elif sys.argv[1] == "genJobs":
+		jobs()
 	elif sys.argv[1] == "join":
 		join()
 	elif sys.argv[1] == "old":
