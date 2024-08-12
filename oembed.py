@@ -7,16 +7,17 @@ import traceback
 import random
 
 class Getter(threading.Thread):
-	def __init__(self, start, end):
+	def __init__(self, start, xlen, urlList):
 		self.startIndex = start
-		self.end = end
+		self.xlen = xlen
+		self.urlList = urlList
 		threading.Thread.__init__(self)
 
 		self.results = None
 	def run(self):
 		results = {}
 		session = requests.session()
-		for i in range(self.startIndex, self.end):
+		for url in self.urlList:
 			jsoFail = 0
 			while 1:
 				try:
@@ -27,19 +28,12 @@ class Getter(threading.Thread):
 						'SEC-CH-UA-MOBILE': '?0',
 						'Sec-CH-UA-Platform': "Windows"
 						}
-					lr = session.head(f"https://www.deviantart.com/deviation/{i}",
-						headers = h,
-						timeout=15)
-					if lr.status_code == 404:
-						results[i] = "404 Not Found"
-						break
-					if lr.status_code != 301 or not 'location' in lr.headers:
-						print("NOT 301! PANIC")
-						continue
+
 					r = session.get(
-						f"https://backend.deviantart.com/oembed?url={lr.headers['location']}",
+						f"https://backend.deviantart.com/oembed?url={url}",
 						headers = h,
 						timeout=15)
+					print(r)
 					if r.status_code == 200:
 						try: 
 							if jsoFail > 25:
@@ -53,8 +47,7 @@ class Getter(threading.Thread):
 							f.close()
 							continue
 					if r.status_code == 200 or r.status_code == 404:
-
-						results[i] = r.text
+						results[int(url.split("-")[-1])] = r.text
 						break
 					else:
 						print(r)
@@ -63,12 +56,12 @@ class Getter(threading.Thread):
 					print(traceback.format_exc())
 					time.sleep(1)
 		self.results = results
-		print("Completed range", self.startIndex, "-",  self.end)
+		print("Completed range", self.startIndex, "-",  self.xlen)
 
 	def bakeResults(self):
 		assert self.results is not None
 		bdata = b""
-		for i in range(self.startIndex, self.end):
+		for i in range(self.startIndex, self.startIndex + self.xlen):
 			if not i in self.results or self.results[i].startswith("404 Not Found"):
 				bdata += b"\x00"
 			else:

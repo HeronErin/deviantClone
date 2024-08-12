@@ -1,9 +1,9 @@
 import oembed, requests, gzip, time, traceback
 
 
-server = "http://34.31.231.163/"
-size = 20_000
-threads = 30
+server = "http://127.0.0.1:1234/"
+size = 100
+threads = 1
 
 threadList = []
 
@@ -22,13 +22,15 @@ if __name__ == "__main__":
 		while len(threadList) < threads and not waitingForExit:
 			while True:
 				try:
-					r = ses.get(server + "/get_directive/" + str(size))
+					r = ses.get(server + "/get_directive/")
 					break
 				except Exception as e: print(traceback.format_exc())
-			start, end = r.json()
-			t = oembed.Getter(start, end)
+			urlList = r.json()
+			start = urlList.pop(0)
+			print(start, len(urlList))
+			t = oembed.Getter(start, size, urlList)
 			t.start()
-			threadList.append([t, start, end])
+			threadList.append([t, start, start + size])
 
 
 		for r in results:

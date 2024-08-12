@@ -1,6 +1,8 @@
-import sys, os, gzip, oembed, json, time, threading
+import sys, os, gzip, oembed, json, time, threading, requests
 import shutil
 from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Pool
+import xml.etree.ElementTree as ET
 
 JOUT = "out"
 def join():
@@ -157,7 +159,116 @@ def fill():
 		t[0].join()
 		handle(t)
 
-		
+def sitemapAutomata():
+	def dl(url, path):
+		if os.path.exists(path): return
+		with open(path, "wb") as f:
+			r = requests.get(url)
+			r.raise_for_status()
+			f.write(r.content)
+			f.close()
+			print("Completed:", url)
+
+	master = requests.get("https://www.deviantart.com/sitemap-index.xml.gz")
+	cont = ET.fromstring(gzip.decompress(master.content).decode("utf-8"))
+	namespace = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+	with ThreadPoolExecutor(max_workers=50) as exe:
+		for loc in cont.findall('ns:sitemap/ns:loc', namespace):
+			url = loc.text
+			exe.submit(dl, url, os.path.join("sitemaps", url.split("/")[-1]))
+
+def mapExt(path):
+	namespaces = {
+	    'default': 'http://www.sitemaps.org/schemas/sitemap/0.9',
+	    'image': 'http://www.google.com/schemas/sitemap-image/1.1'
+	}
+	print(path)
+
+	found = 0
+	with gzip.open(path+".ext.txt.gz", "w") as f:
+		sf = gzip.open(path, "r")
+		root = ET.fromstring(sf.read())
+		sf.close()
+		for url in root.findall('default:url', namespaces):
+			loc = url.find('default:loc', namespaces).text
+			
+			img = url.find('image:image', namespaces)
+			if img is None:
+				continue
+			found += 1
+			f.write(loc.encode("utf-8"))
+			f.write(b"\n")
+	return found
+SPLT = 100_000
+def handleLinkFile(path):
+	print(path)
+	sf = gzip.open(path, "r")
+	lines = list(sorted(
+		(
+			(int(line.split(b"-")[-1]), line) for line in sf.read().split(b"\n") if line
+		), 
+			key=lambda x: x[0]
+		))
+	sf.close()
+	f = None
+	fid = -1
+	for id, line in lines:
+		mod = id // SPLT
+		if fid != mod:
+			if f is not None: f.close()
+			f = open(f"links/{mod}.USORT.txt", "a")
+		f.write(str(id))
+		f.write(",")
+		f.write(line.decode("ascii"))
+		f.write("\n")
+	f.close()
+def comb():
+	with Pool(32) as p:
+		p.map(
+			handleLinkFile,
+			(
+				os.path.join("sitemaps", sm) 
+					for sm in os.listdir("sitemaps") if sm.endswith("ext.txt.gz")
+			)
+		)
+def handleLinkFileSorted(path):
+	
+	f = open(path, "r")
+	sl = sorted(((int(l.split(",")[0]), l.split(",")[1]) for l in f.read().split("\n") if l), key=lambda x: x[0])
+	f.close()
+
+	f = open(path.replace("USORT", "SORT"), "w")
+	f.write("\n".join(l[1] for l in sl))
+	f.close()
+def sortIt():
+	with Pool(8) as p:
+		p.map(
+			handleLinkFileSorted,
+			(
+				os.path.join("links", sm) 
+					for sm in os.listdir("links") if sm.endswith("USORT.txt")
+			)
+		)
+	
+def daExt():
+	namespaces = {
+	    'default': 'http://www.sitemaps.org/schemas/sitemap/0.9',
+	    'image': 'http://www.google.com/schemas/sitemap-image/1.1'
+	}
+
+	with Pool(8) as p:
+		sum(
+			p.map(
+				mapExt,
+				(
+					os.path.join("sitemaps", sm) 
+						for sm in os.listdir("sitemaps") if sm.endswith("xml.gz")
+				)
+			)
+		)
+
+
+
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
@@ -173,6 +284,14 @@ if __name__ == "__main__":
 		fix(sys.argv[2])
 	elif sys.argv[1] == "rename":
 		rename(sys.argv[2])
+	elif sys.argv[1] == "map":
+		sitemapAutomata()
+	elif sys.argv[1] == "daExt":
+		daExt()
+	elif sys.argv[1] == "comb":
+		comb()
+	elif sys.argv[1] == "sortIt":
+		sortIt()
 	elif sys.argv[1] == "ext":
 		if len(sys.argv) == 2:
 			print("Please provide a file to extract.")
